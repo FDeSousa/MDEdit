@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MDEdit</string>
+    <string name="save">Save</string>
+    <string name="load">Load</string>
+    <string name="export_html">Export HTML</string>
+    <string name="load_from_url">Load from URL</string>
+    <string name="enter_markdown_here">Enter your Markdown source here</string>
+    <string name="send_markdown">Send markdown text</string>
+    <string name="subject_markdown">MDEdit: Your markdown text</string>
+    <string name="clear">Clear</string>
+</resources>
