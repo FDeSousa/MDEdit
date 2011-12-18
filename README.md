@@ -1,6 +1,7 @@
 # MDEdit
 
-A simple editor for the [Markdown language][2] by John Gruber
+A simple editor for the [Markdown language][2] by John Gruber to run on Android.
+Currently the app runs on Android 3+.
 
 
 ## Dependencies
