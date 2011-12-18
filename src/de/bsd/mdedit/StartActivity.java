@@ -10,6 +10,7 @@ import java.io.StringWriter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -45,7 +46,13 @@ public class StartActivity extends Activity
             String text = savedInstanceState.getString("text");
             editor.setText(text);
             renderText(text);
-
+        }
+        // check if we were called to open a .md file
+        if (savedInstanceState==null && getIntent()!=null && getIntent().getData()!=null) {
+            Uri uri = getIntent().getData();
+            String text = loadFromFile(uri.getPath(),true);
+            editor.setText(text);
+            renderText(text);
         }
     }
 
@@ -57,7 +64,7 @@ public class StartActivity extends Activity
         editor = (EditText) findViewById(R.id.editor);
 
         if (editor.getText().toString()!=null && editor.getText().toString().isEmpty()) {
-            String text = loadFromFile(FILE_NAME);
+            String text = loadFromFile(FILE_NAME, false);
             if (text!=null) {
                 editor.setText(text);
                 renderText(text);
@@ -167,8 +174,12 @@ public class StartActivity extends Activity
         }
     }
 
-    private String loadFromFile(String fileName) {
-        File file = new File(getExternalFilesDir(null),fileName);
+    private String loadFromFile(String fileName, boolean absolutePath) {
+        File file;
+        if (!absolutePath)
+            file = new File(getExternalFilesDir(null),fileName);
+        else
+            file = new File(fileName);
         try {
             FileInputStream fis = new FileInputStream(file);
             byte[] buffer = new byte[fis.available()];
@@ -178,6 +189,7 @@ public class StartActivity extends Activity
             return text;
         } catch (IOException e) {
             e.printStackTrace();  // TODO: Customise this generated block
+            Toast.makeText(this,"Load failed: " + e.getMessage(),Toast.LENGTH_LONG).show();
         }
         return null;
 

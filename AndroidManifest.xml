@@ -14,8 +14,11 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="file"  android:mimeType="*/*" android:pathPattern=".*\\.md"  android:host="*" />
+                <!--<category android:name="android.intent.category.BROWSABLE" />-->
+                <data android:scheme="file"/>
+                <data android:pathPattern=".*\\.md" />
+                <data android:mimeType="application/octet-stream"/>
+                <data android:host="*"/>
             </intent-filter>
         </activity>
     </application>
