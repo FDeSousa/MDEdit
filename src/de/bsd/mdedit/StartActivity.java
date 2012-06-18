@@ -4,195 +4,204 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebView;
 import android.widget.EditText;
+import android.widget.Scroller;
 import android.widget.Toast;
 
-import org.tautua.markdownpapers.Markdown;
-import org.tautua.markdownpapers.parser.ParseException;
+import com.viewpagerindicator.TitlePageIndicator;
 
-public class StartActivity extends Activity
-{
+public class StartActivity extends Activity {
 
-    private WebView webView;
-    private EditText editor;
-    private final Markdown markdown = new Markdown();
-    private static final String FILE_NAME = "_tmP-save.md";
+	private static final String FILE_NAME;
+	private static final int NUM_AWESOME_VIEWS;
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+	static {
+		FILE_NAME = "_tmP-save.md";
+		NUM_AWESOME_VIEWS = 2;
+	}
 
-        editor = (EditText) findViewById(R.id.editor);
+	private TextEditorHandler txtEditor;
+	private MarkdownViewHandler mdView;
 
-        // get text from savedInstanceState
-        if (savedInstanceState!=null) {
-            String text = savedInstanceState.getString("text");
-            editor.setText(text);
-            renderText(text);
-        }
-        // check if we were called to open a .md file
-        if (savedInstanceState==null && getIntent()!=null && getIntent().getData()!=null) {
-            Uri uri = getIntent().getData();
-            String text = loadFromFile(uri.getPath(),true);
-            editor.setText(text);
-            renderText(text);
-        }
-    }
+	private String initText;
 
-    public void onResume() {
-        super.onResume();
+	private ViewPager vPager;
+	private MarkdownPagerAdapter mdpAdapter;
+	private TitlePageIndicator tpIndicator;
 
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
 
-        webView = (WebView) findViewById(R.id.webview);
-        editor = (EditText) findViewById(R.id.editor);
+		// Always set the initText to something
+		initText = "";
 
-        if (editor.getText().toString()!=null && editor.getText().toString().isEmpty()) {
-            String text = loadFromFile(FILE_NAME, false);
-            if (text!=null) {
-                editor.setText(text);
-                renderText(text);
-            }
-        }
+		if (savedInstanceState != null) {
+			// Get text from savedInstanceState
+			initText = savedInstanceState.getString("text");
+		} else if (savedInstanceState == null && getIntent() != null
+				&& getIntent().getData() != null) {
+			// Called to open a .md file
+			Uri uri = getIntent().getData();
+			initText = loadFromFile(uri.getPath(), true);
+		}
 
+		mdpAdapter = new MarkdownPagerAdapter(NUM_AWESOME_VIEWS);
+		vPager = (ViewPager) findViewById(R.id.markdown_pager);
+		vPager.setAdapter(mdpAdapter);
+		// TODO Setup the names for titles for TitlePageIndicator
+		tpIndicator = (TitlePageIndicator) findViewById(R.id.titles);
+		tpIndicator.setViewPager(vPager);
+	}
 
-        editor.addTextChangedListener(new TextWatcher() {
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // Not needed
-            }
+	@Override
+	public void onResume() {
+		super.onResume();
 
-            public void afterTextChanged(Editable editable) {
-                // Not needed
-            }
+		LayoutParams lParams = new LayoutParams(LayoutParams.MATCH_PARENT,
+				LayoutParams.MATCH_PARENT);
 
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+		WebView webView = new WebView(this);
+		webView.setLayoutParams(lParams);
 
-                String text = editor.getText().toString();
+		EditText editor = new EditText(this);
+		editor.setLayoutParams(lParams);
+		// TODO Add ability to change background and text colours. Maybe from
+		// presets?
+		editor.setBackgroundResource(android.R.color.darker_gray);
+		editor.setTextAppearance(this, android.R.color.tertiary_text_light);
+		// Set the text gravity to the top
+		editor.setGravity(Gravity.TOP);
+		// TODO Should setup scroll bar, but still doesn't appear
+		editor.setScroller(new Scroller(this));
+		editor.setVerticalFadingEdgeEnabled(true);
+		editor.setVerticalScrollBarEnabled(true);
 
-                renderText(text);
+		this.mdView = new MarkdownViewHandler(webView);
+		this.txtEditor = new TextEditorHandler(editor, mdView, initText);
+		View[] views = { editor, webView };
+		String[] titles = { "Editor", "Viewer" };
+		this.mdpAdapter.setViews(titles, views);
 
-            }
-        });
+		if (txtEditor.getText().isEmpty()) {
+			String text = loadFromFile(StartActivity.FILE_NAME, false);
+			if (text != null) {
+				txtEditor.setText(text);
+			}
+		}
 
-    }
+		// Only set the listener now so webview has had a chance to be instantiated
+		tpIndicator.setOnPageChangeListener(new SimpleOnPageChangeListener() {
+			@Override
+			public void onPageSelected(int position) {
+				// Update if next view to be displayed will be the webview
+				if (position == 1)
+					txtEditor.update();
+				super.onPageSelected(position);
+			}
+		});
+	}
 
-    private void renderText(String text) {
-        Reader in = new StringReader(text);
-        StringWriter out = new StringWriter();
+	@Override
+	protected void onPause() {
+		super.onPause();
+		String text = txtEditor.getText();
+		saveToFile(StartActivity.FILE_NAME, text);
+	}
 
-        try {
-            markdown.transform(in,out);
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		String text = txtEditor.getText();
+		outState.putString("text", text);
+		super.onSaveInstanceState(outState);
+	}
 
-            String result = out.toString();
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
 
-            webView = (WebView) findViewById(R.id.webview);
-            webView.loadData(result, "text/html", "utf-8");
-        } catch (ParseException e) {
-            e.printStackTrace();  // TODO: Customise this generated block
-        }
-    }
+		return true;
+	}
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        String text = editor.getText().toString();
-        saveToFile(FILE_NAME,text);
-    }
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        String text = editor.getText().toString();
-        outState.putString("text",text);
-        super.onSaveInstanceState(outState);
-    }
+		switch (item.getItemId()) {
+		case R.id.menu_save:
+			break;
+		case R.id.menu_load:
+			break;
+		case R.id.menu_export_html:
+			break;
+		case R.id.menu_load_from_url:
+			break;
+		case R.id.menu_send:
+			String text = txtEditor.getText();
+			Intent i = new Intent(Intent.ACTION_SEND);
+			i.setType("text/plain");
+			i.putExtra(Intent.EXTRA_TEXT, text);
+			String subject = getString(R.string.subject_markdown);
+			i.putExtra(Intent.EXTRA_SUBJECT, subject);
+			startActivity(i);
+			break;
+		case R.id.menu_clear:
+			txtEditor.setText("");
+			break;
+		}
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main,menu);
+		return true;
+	}
 
-        return true;
-    }
+	private void saveToFile(String fileName, String text) {
+		File file = new File(getExternalFilesDir(null), fileName);
+		try {
+			FileOutputStream fos = new FileOutputStream(file);
+			fos.write(text.getBytes());
+			fos.flush();
+			fos.close();
+		} catch (IOException e) {
+			Toast.makeText(this, "Save failed: " + e.getMessage(),
+					Toast.LENGTH_LONG).show();
+		}
+	}
 
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-
-        switch (item.getItemId()) {
-        case R.id.menu_save:
-            break;
-        case R.id.menu_load:
-            break;
-        case R.id.menu_export_html:
-            break;
-        case R.id.menu_load_from_url:
-            break;
-        case R.id.menu_send:
-            String text = editor.getText().toString();
-            Intent i = new Intent(Intent.ACTION_SEND);
-            i.setType("text/plain");
-            i.putExtra(Intent.EXTRA_TEXT,text);
-            String subject = getString(R.string.subject_markdown);
-            i.putExtra(Intent.EXTRA_SUBJECT, subject);
-            startActivity(i);
-            break;
-        case R.id.menu_clear:
-            editor.setText("");
-            renderText("");
-            break;
-        }
-
-        return true;
-    }
-
-
-    private void saveToFile(String fileName, String text) {
-        File file = new File(getExternalFilesDir(null),fileName);
-        try {
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(text.getBytes());
-            fos.flush();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();  // TODO: Customise this generated block
-            Toast.makeText(this,"Save failed: " + e.getMessage(),Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private String loadFromFile(String fileName, boolean absolutePath) {
-        File file;
-        if (!absolutePath)
-            file = new File(getExternalFilesDir(null),fileName);
-        else
-            file = new File(fileName);
-        try {
-            FileInputStream fis = new FileInputStream(file);
-            byte[] buffer = new byte[fis.available()];
-            fis.read(buffer);
-            String text = new String(buffer);
-            fis.close();
-            return text;
-        } catch (IOException e) {
-            e.printStackTrace();  // TODO: Customise this generated block
-            Toast.makeText(this,"Load failed: " + e.getMessage(),Toast.LENGTH_LONG).show();
-        }
-        return null;
-
-    }
+	private String loadFromFile(String fileName, boolean absolutePath) {
+		File file;
+		if (!absolutePath)
+			file = new File(getExternalFilesDir(null), fileName);
+		else
+			file = new File(fileName);
+		try {
+			FileInputStream fis = new FileInputStream(file);
+			byte[] buffer = new byte[fis.available()];
+			fis.read(buffer);
+			String text = new String(buffer);
+			fis.close();
+			return text;
+		} catch (IOException e) {
+			// Hacky way of not showing toast for failed loading of temp file
+			if (!fileName.equals(FILE_NAME))
+				Toast.makeText(this, "Load failed: " + e.getMessage(),
+						Toast.LENGTH_LONG).show();
+		}
+		return null;
+	}
 
 }
