@@ -36,12 +36,27 @@ import android.webkit.WebView;
  * 
  */
 public class MarkdownViewHandler {
+	private static final String CSS_BASE_URL = "file:///android_asset/";
+	private static final String CSS_STRING = "<link rel='stylesheet' type='text/css' href='style.css' />";
+	private static final String MIME_TYPE = "text/html";
+	private static final String ENCODING = "UTF-8";
+
 	private WebView webView;
 	private final Markdown markdown;
+	private String cssBaseUrl;
 
 	public MarkdownViewHandler(WebView webView) {
+		this(webView, null);
+	}
+
+	public MarkdownViewHandler(WebView webView, String cssBaseUrl) {
 		this.webView = webView;
 		this.markdown = new Markdown();
+		this.cssBaseUrl = cssBaseUrl;
+	}
+	
+	public void setCssBaseUrl(String cssBaseUrl) {
+		this.cssBaseUrl = cssBaseUrl;
 	}
 
 	public void update(String text) {
@@ -50,10 +65,14 @@ public class MarkdownViewHandler {
 
 		try {
 			markdown.transform(in, out);
-			String result = out.toString();
-			webView.loadData(result, "text/html", "utf-8");
+			// Load the HTML with chosen CSS into WebView
+			String result = CSS_STRING + out.toString();
+			String baseUrl = CSS_BASE_URL;
+			if (this.cssBaseUrl != null)
+				baseUrl = this.cssBaseUrl;
+			webView.loadDataWithBaseURL(baseUrl, result, MIME_TYPE, ENCODING, null);
 		} catch (ParseException e) {
-			Log.w("MarkdownViewHandler.update()", e);
+			Log.e("MarkdownViewHandler.update()", "ParseException when updating MarkdownViewHandler", e);
 		}
 	}
 

@@ -15,7 +15,6 @@
  *****************************************************************************/
 package de.bsd.mdedit;
 
-import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -30,13 +29,13 @@ import android.view.View;
  * @version %I%, %G%
  * 
  */
-public class MarkdownPagerAdapter extends PagerAdapter {
+public class MDEditPagerAdapter extends PagerAdapter {
 
 	private final int numViews;
 	private String[] titles;
 	private View[] views;
 
-	public MarkdownPagerAdapter(int numViews) {
+	public MDEditPagerAdapter(int numViews) {
 		super();
 		this.numViews = numViews;
 		this.titles = new String[this.numViews];
@@ -88,32 +87,6 @@ public class MarkdownPagerAdapter extends PagerAdapter {
 	@Override
 	public boolean isViewFromObject(View view, Object object) {
 		return view.equals(object);
-	}
-
-	/**
-	 * Called when the change in the shown pages has been completed. At this
-	 * point you must ensure that all of the pages have actually been added or
-	 * removed from the container as appropriate.
-	 * 
-	 * @param container
-	 *            The containing View which is displaying this adapter's page
-	 *            views.
-	 */
-	@Override
-	public void finishUpdate(View arg0) {
-	}
-
-	@Override
-	public void restoreState(Parcelable arg0, ClassLoader arg1) {
-	}
-
-	@Override
-	public Parcelable saveState() {
-		return null;
-	}
-
-	@Override
-	public void startUpdate(View arg0) {
 	}
 
 	@Override

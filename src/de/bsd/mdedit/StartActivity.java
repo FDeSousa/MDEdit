@@ -40,7 +40,7 @@ public class StartActivity extends Activity {
 	private String initText;
 
 	private ViewPager vPager;
-	private MarkdownPagerAdapter mdpAdapter;
+	private MDEditPagerAdapter mdpAdapter;
 	private TitlePageIndicator tpIndicator;
 
 	/** Called when the activity is first created. */
@@ -62,7 +62,7 @@ public class StartActivity extends Activity {
 			initText = loadFromFile(uri.getPath(), true);
 		}
 
-		mdpAdapter = new MarkdownPagerAdapter(NUM_AWESOME_VIEWS);
+		mdpAdapter = new MDEditPagerAdapter(NUM_AWESOME_VIEWS);
 		vPager = (ViewPager) findViewById(R.id.markdown_pager);
 		vPager.setAdapter(mdpAdapter);
 		// TODO Setup the names for titles for TitlePageIndicator
@@ -196,7 +196,7 @@ public class StartActivity extends Activity {
 			fis.close();
 			return text;
 		} catch (IOException e) {
-			// Hacky way of not showing toast for failed loading of temp file
+			// TODO Hacky way of not showing toast for failed loading of temp file
 			if (!fileName.equals(FILE_NAME))
 				Toast.makeText(this, "Load failed: " + e.getMessage(),
 						Toast.LENGTH_LONG).show();
