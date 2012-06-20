@@ -61,5 +61,13 @@ public class ScrollState implements Parcelable {
 		dest.writeInt(scrollPos.length);
 		dest.writeIntArray(scrollPos);
 	}
+	
+	public int[] getScrollPos() {
+		return this.scrollPos;
+	}
+	
+	public void setScrollPos(int[] scrollPos) {
+		this.scrollPos = scrollPos;
+	}
 
 }

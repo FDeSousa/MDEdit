@@ -6,17 +6,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
+import android.text.InputType;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.Scroller;
@@ -65,7 +68,7 @@ public class StartActivity extends Activity {
 		mdpAdapter = new MDEditPagerAdapter(NUM_AWESOME_VIEWS);
 		vPager = (ViewPager) findViewById(R.id.markdown_pager);
 		vPager.setAdapter(mdpAdapter);
-		// TODO Setup the names for titles for TitlePageIndicator
+
 		tpIndicator = (TitlePageIndicator) findViewById(R.id.titles);
 		tpIndicator.setViewPager(vPager);
 	}
@@ -74,6 +77,7 @@ public class StartActivity extends Activity {
 	public void onResume() {
 		super.onResume();
 
+		// TODO Should move this setup of items elsewhere I think.
 		LayoutParams lParams = new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.MATCH_PARENT);
 
@@ -82,19 +86,23 @@ public class StartActivity extends Activity {
 
 		EditText editor = new EditText(this);
 		editor.setLayoutParams(lParams);
-		// TODO Add ability to change background and text colours. Maybe from
-		// presets?
+		// TODO Add ability to change background and text colours
 		editor.setBackgroundResource(android.R.color.darker_gray);
 		editor.setTextAppearance(this, android.R.color.tertiary_text_light);
 		// Set the text gravity to the top
 		editor.setGravity(Gravity.TOP);
+		// Text, with capitalized sentences and multiple line input.
+		editor.setInputType(InputType.TYPE_CLASS_TEXT
+				| InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+				| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 		// TODO Should setup scroll bar, but still doesn't appear
 		editor.setScroller(new Scroller(this));
 		editor.setVerticalFadingEdgeEnabled(true);
 		editor.setVerticalScrollBarEnabled(true);
 
 		this.mdView = new MarkdownViewHandler(webView);
-		this.txtEditor = new TextEditorHandler(editor, mdView, initText);
+		this.txtEditor = new TextEditorHandler( editor, mdView, initText,
+				(InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE));
 		View[] views = { editor, webView };
 		String[] titles = { "Editor", "Viewer" };
 		this.mdpAdapter.setViews(titles, views);
@@ -110,9 +118,14 @@ public class StartActivity extends Activity {
 		tpIndicator.setOnPageChangeListener(new SimpleOnPageChangeListener() {
 			@Override
 			public void onPageSelected(int position) {
-				// Update if next view to be displayed will be the webview
-				if (position == 1)
+				if (position == 0) {
+					// View is going to be text editor, so tell it it's gaining focus
+					txtEditor.gainFocus();
+				} else {
+					// Text editor is losing focus, so update and tell it
 					txtEditor.update();
+					txtEditor.loseFocus();
+				}
 				super.onPageSelected(position);
 			}
 		});

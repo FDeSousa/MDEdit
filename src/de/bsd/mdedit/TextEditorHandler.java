@@ -15,6 +15,7 @@
  *****************************************************************************/
 package de.bsd.mdedit;
 
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 /**
@@ -23,7 +24,7 @@ import android.widget.EditText;
  * de.bsd.mdedit<br/>
  * TextEditorHandler.java
  * 
- * @author Fil
+ * @author Filipe De Sousa
  * @version %I%, %G%
  * 
  */
@@ -31,6 +32,7 @@ public class TextEditorHandler {
 
 	private final EditText editText;
 	private final MarkdownViewHandler mdView;
+	private final InputMethodManager imm;
 
 	/**
 	 * @param findViewById
@@ -38,32 +40,63 @@ public class TextEditorHandler {
 	 * @param initText
 	 */
 	public TextEditorHandler(EditText editText, MarkdownViewHandler mdView,
-			String initText) {
-		// TODO Auto-generated constructor stub
+			String initText, InputMethodManager imm) {
 		this.editText = editText;
 		this.mdView = mdView;
+		this.imm = imm;
 	}
 
 	/**
-	 * Convenience method for updating via TextWatcher.onTextChanged()
-	 * 
-	 * TODO: Should at some point be changed to call mdView.update() only when
-	 * changing pages on ViewPager
+	 * Convenience method for updating via TextWatcher.onTextChanged() with the
+	 * current text
 	 */
 	public void update() {
 		this.mdView.update(this.getText());
 	}
 
+	/**
+	 * Get the current text displayed.
+	 * @return string
+	 */
 	public String getText() {
 		return this.editText.getText().toString();
 	}
 
 	/**
+	 * Method to execute when the text editor is gaining focus.
+	 * Requests focus for the EditText View, and shows the soft keyboard.
+	 */
+	public void gainFocus() {
+		this.editText.requestFocus();
+		this.imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+	}
+
+	/**
+	 * Method to execute when the text editor is meant to lose focus.
+	 * Clears focus from the EditText View, and hides the soft keyboard.
+	 */
+	public void loseFocus() {
+		this.imm.hideSoftInputFromWindow(editText.getWindowToken(),
+				InputMethodManager.HIDE_NOT_ALWAYS);
+		this.editText.clearFocus();
+	}
+
+	/**
+	 * Set the visible text.
 	 * @param string
 	 */
 	public void setText(String string) {
 		this.editText.setText(string);
 		this.mdView.update(string);
+	}
+	
+	/**
+	 * Gets the current X/Y scroll integers for the edit text.
+	 * @return int[] containing X and Y scroll coordinates
+	 */
+	public int[] getScroll() {
+		int[] scrollXY = { this.editText.getScrollX(), this.editText.getScrollY() };
+		return scrollXY;
 	}
 
 }
