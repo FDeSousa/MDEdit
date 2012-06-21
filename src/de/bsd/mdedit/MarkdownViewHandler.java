@@ -1,18 +1,3 @@
-/******************************************************************************
- * Copyright 2012 Filipe De Sousa
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *****************************************************************************/
 package de.bsd.mdedit;
 
 import java.io.Reader;
@@ -31,7 +16,7 @@ import android.webkit.WebView;
  * de.bsd.mdedit<br/>
  * MarkdownViewHandler.java
  * 
- * @author Fil
+ * @author Filipe De Sousa
  * @version %I%, %G%
  * 
  */
@@ -59,7 +44,7 @@ public class MarkdownViewHandler {
 		this.cssBaseUrl = cssBaseUrl;
 	}
 
-	public void update(String text) {
+	public String update(String text) {
 		Reader in = new StringReader(text);
 		StringWriter out = new StringWriter();
 
@@ -74,6 +59,12 @@ public class MarkdownViewHandler {
 		} catch (ParseException e) {
 			Log.e("MarkdownViewHandler.update()", "ParseException when updating MarkdownViewHandler", e);
 		}
+		
+		return out.toString();
+	}
+
+	public String getHtml(String text) {
+		return update(text);
 	}
 
 }

@@ -1,18 +1,3 @@
-/******************************************************************************
- * Copyright 2012 Filipe De Sousa
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *****************************************************************************/
 package de.bsd.mdedit;
 
 import android.view.inputmethod.InputMethodManager;
@@ -28,7 +13,9 @@ import android.widget.EditText;
  * @version %I%, %G%
  * 
  */
-public class TextEditorHandler {
+public class TextEditorViewHandler {
+
+	public static final String TEXT_SELECTION = "TextSelection";
 
 	private final EditText editText;
 	private final MarkdownViewHandler mdView;
@@ -39,7 +26,7 @@ public class TextEditorHandler {
 	 * @param mdView
 	 * @param initText
 	 */
-	public TextEditorHandler(EditText editText, MarkdownViewHandler mdView,
+	public TextEditorViewHandler(EditText editText, MarkdownViewHandler mdView,
 			String initText, InputMethodManager imm) {
 		this.editText = editText;
 		this.mdView = mdView;
@@ -91,12 +78,16 @@ public class TextEditorHandler {
 	}
 	
 	/**
-	 * Gets the current X/Y scroll integers for the edit text.
-	 * @return int[] containing X and Y scroll coordinates
+	 * Gets the current selection start and end integers for the edit text.
+	 * @return int[] containing start and end selection values
 	 */
-	public int[] getScroll() {
-		int[] scrollXY = { this.editText.getScrollX(), this.editText.getScrollY() };
-		return scrollXY;
+	public int[] getSelection() {
+		int[] selection = { this.editText.getSelectionStart(), this.editText.getSelectionEnd() };
+		return selection;
+	}
+	
+	public void setSelection(int[] selection) {
+		this.editText.setSelection(selection[0], selection[1]);
 	}
 
 }
