@@ -17,7 +17,7 @@ import android.widget.Toast;
  * 
  * @author Filipe De Sousa
  * @version %I%, %G%
- *
+ * 
  */
 public class FileHandler {
 	public static final String TEMP_FILE_NAME;
@@ -27,13 +27,15 @@ public class FileHandler {
 	}
 
 	private final Context context;
+	private final File externalStoragePath;
 
 	public FileHandler(Context context) {
 		this.context = context;
+		externalStoragePath = this.context.getExternalFilesDir(null);
 	}
 
 	public void saveToFile(String fileName, String text) {
-		File file = new File(this.context.getExternalFilesDir(null), fileName);
+		File file = new File(this.externalStoragePath, fileName);
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
 			fos.write(text.getBytes());
@@ -48,7 +50,7 @@ public class FileHandler {
 	public String loadFromFile(String fileName, boolean absolutePath) {
 		File file;
 		if (!absolutePath)
-			file = new File(this.context.getExternalFilesDir(null), fileName);
+			file = new File(this.externalStoragePath, fileName);
 		else
 			file = new File(fileName);
 		try {

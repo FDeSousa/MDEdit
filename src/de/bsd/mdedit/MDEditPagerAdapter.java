@@ -1,20 +1,20 @@
 package de.bsd.mdedit;
 
-import com.viewpagerindicator.TitlePageIndicator;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.EditText;
-import android.widget.Scroller;
+
+import com.viewpagerindicator.TitlePageIndicator;
 
 /**
  * 
@@ -71,9 +71,9 @@ public class MDEditPagerAdapter extends PagerAdapter {
 				| InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 				| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 		// TODO Should setup scroll bar, but still doesn't appear
-		editor.setScroller(new Scroller(this.context));
-		editor.setVerticalFadingEdgeEnabled(true);
-		editor.setVerticalScrollBarEnabled(true);
+		// editor.setScroller(new Scroller(this.context));
+		// editor.setVerticalFadingEdgeEnabled(true);
+		// editor.setVerticalScrollBarEnabled(true);
 
 		this.mdView = new MarkdownViewHandler(webView);
 		this.txtEditor = new TextEditorViewHandler(editor, mdView, initText,
@@ -112,7 +112,7 @@ public class MDEditPagerAdapter extends PagerAdapter {
 	}
 
 	public void onResume() {
-		if (txtEditor.getText().isEmpty()) {
+		if (TextUtils.isEmpty(txtEditor.getText())) {
 			String text = fileHandler.loadFromFile(FileHandler.TEMP_FILE_NAME,
 					false);
 			if (text != null) {
