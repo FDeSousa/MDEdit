@@ -1,10 +1,12 @@
 package de.bsd.mdedit;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,7 +22,7 @@ import com.viewpagerindicator.TitlePageIndicator;
  * 
  * @author Filipe De Sousa
  * @version %I%, %G%
- *
+ * 
  */
 public class StartActivity extends Activity {
 
@@ -33,7 +35,7 @@ public class StartActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
+
 		this.fileHandler = new FileHandler(this);
 		String initText = "";
 
@@ -49,7 +51,9 @@ public class StartActivity extends Activity {
 
 		ViewPager vPager = (ViewPager) findViewById(R.id.markdown_pager);
 		TitlePageIndicator tpIndicator = (TitlePageIndicator) findViewById(R.id.titles);
-		mdpAdapter = new MDEditPagerAdapter(this, this.fileHandler, vPager, tpIndicator, initText);
+		LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		mdpAdapter = new MDEditPagerAdapter(this, this.fileHandler,
+				layoutInflater, vPager, tpIndicator, initText);
 	}
 
 	@Override

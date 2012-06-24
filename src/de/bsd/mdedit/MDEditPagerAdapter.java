@@ -5,11 +5,9 @@ import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
-import android.text.InputType;
 import android.text.TextUtils;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.EditText;
@@ -43,7 +41,8 @@ public class MDEditPagerAdapter extends PagerAdapter {
 	private FileHandler fileHandler;
 
 	public MDEditPagerAdapter(Context context, FileHandler fileHandler,
-			ViewPager vPager, TitlePageIndicator tpIndicator, String initText) {
+			LayoutInflater layoutInflater, ViewPager vPager,
+			TitlePageIndicator tpIndicator, String initText) {
 		super();
 		this.context = context;
 
@@ -54,26 +53,13 @@ public class MDEditPagerAdapter extends PagerAdapter {
 		this.tpIndicator = tpIndicator;
 		tpIndicator.setViewPager(this.vPager);
 
-		LayoutParams lParams = new LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.MATCH_PARENT);
-		WebView webView = new WebView(this.context);
-		webView.setLayoutParams(lParams);
-		EditText editor = new EditText(this.context);
-		editor.setLayoutParams(lParams);
+		// TODO Add ability to define custom CSS
+		View webLayout = layoutInflater.inflate(R.layout.markdown_view, null);
+		WebView webView = (WebView) webLayout.findViewById(R.id.md_view);
+
+		View editorLayout = layoutInflater.inflate(R.layout.editor_view, null);
+		EditText editor = (EditText) editorLayout.findViewById(R.id.editor);
 		// TODO Add ability to change background and text colours
-		editor.setBackgroundResource(android.R.color.darker_gray);
-		editor.setTextAppearance(this.context,
-				android.R.color.tertiary_text_light);
-		// Set the text gravity to the top
-		editor.setGravity(Gravity.TOP);
-		// Text, with capitalized sentences and multiple line input.
-		editor.setInputType(InputType.TYPE_CLASS_TEXT
-				| InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-				| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-		// TODO Should setup scroll bar, but still doesn't appear
-		// editor.setScroller(new Scroller(this.context));
-		// editor.setVerticalFadingEdgeEnabled(true);
-		// editor.setVerticalScrollBarEnabled(true);
 
 		this.mdView = new MarkdownViewHandler(webView);
 		this.txtEditor = new TextEditorViewHandler(editor, mdView, initText,
@@ -120,7 +106,8 @@ public class MDEditPagerAdapter extends PagerAdapter {
 			}
 		}
 
-		// Only set the listener now so webview has had a chance to be instantiated
+		// Only set the listener now so webview has had a chance to be
+		// instantiated
 		tpIndicator.setOnPageChangeListener(new SimpleOnPageChangeListener() {
 			@Override
 			public void onPageSelected(int position) {
@@ -152,7 +139,8 @@ public class MDEditPagerAdapter extends PagerAdapter {
 	public void onRestoreInstanceState(Bundle inState) {
 		this.txtEditor.setText(inState.getString("text"));
 		this.txtEditor.gainFocus();
-		this.txtEditor.setSelection(inState.getIntArray(TextEditorViewHandler.TEXT_SELECTION));
+		this.txtEditor.setSelection(inState
+				.getIntArray(TextEditorViewHandler.TEXT_SELECTION));
 	}
 
 	public void setText(String string) {
