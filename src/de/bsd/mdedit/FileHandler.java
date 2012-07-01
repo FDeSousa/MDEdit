@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import android.content.Context;
+import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -20,22 +22,28 @@ import android.widget.Toast;
  * 
  */
 public class FileHandler {
+	public static final File SD_FOLDER;
 	public static final String TEMP_FILE_NAME;
 
 	static {
-		TEMP_FILE_NAME = "_tmP-save.md";
+		TEMP_FILE_NAME = "_tmp-save.md";
+		SD_FOLDER = new File(Environment.getExternalStorageDirectory(), "/MDEdit");
 	}
 
 	private final Context context;
-	private final File externalStoragePath;
 
 	public FileHandler(Context context) {
+		SD_FOLDER.mkdirs(); // Make sure the folder structure is in place
 		this.context = context;
-		externalStoragePath = this.context.getExternalFilesDir(null);
+		this.context.getExternalFilesDir(null);
 	}
 
 	public void saveToFile(String fileName, String text) {
-		File file = new File(this.externalStoragePath, fileName);
+		File file = new File(SD_FOLDER, fileName);
+		saveToFile(file, text);
+	}
+
+	public void saveToFile(File file, String text) {
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
 			fos.write(text.getBytes());
@@ -44,15 +52,13 @@ public class FileHandler {
 		} catch (IOException e) {
 			Toast.makeText(this.context, "Save failed: " + e.getMessage(),
 					Toast.LENGTH_LONG).show();
+			Log.e("FileHandler.saveToFile", "Save failed.", e);
 		}
 	}
 
-	public String loadFromFile(String fileName, boolean absolutePath) {
-		File file;
-		if (!absolutePath)
-			file = new File(this.externalStoragePath, fileName);
-		else
-			file = new File(fileName);
+	public String loadFromFile(File file) {
+		if (!file.isAbsolute())
+			file = file.getAbsoluteFile();
 		try {
 			FileInputStream fis = new FileInputStream(file);
 			byte[] buffer = new byte[fis.available()];
@@ -61,12 +67,20 @@ public class FileHandler {
 			fis.close();
 			return text;
 		} catch (IOException e) {
-			// TODO Fix hacky way of not showing toast for failed loading of
-			// temp file
-			if (!fileName.equals(TEMP_FILE_NAME))
+			// TODO Fix hacky way of not showing toast for failed loading of temp file
+			if (!file.getName().equals(TEMP_FILE_NAME))
 				Toast.makeText(this.context, "Load failed: " + e.getMessage(),
 						Toast.LENGTH_LONG).show();
+			Log.e("FileHandler.loadFromFile", "Load failed.", e);
 		}
 		return null;
+	}
+
+	public String loadFromFile(String fileName) {
+		File file = new File(fileName);
+		if (!file.isAbsolute())
+			file = new File(SD_FOLDER, fileName);
+
+		return loadFromFile(file);
 	}
 }

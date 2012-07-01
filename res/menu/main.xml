@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_clear"
-          android:title="@string/clear"
-          android:showAsAction="withText"
-          />
-    <item android:id="@+id/menu_load"
-          android:enabled="false"
-          android:title="@string/load"/>
-    <item android:id="@+id/menu_save"
-          android:enabled="false"
-          android:title="@string/save"/>
-    <item android:title="@string/export_html"
-          android:enabled="false"
-          android:id="@+id/menu_export_html"/>
-    <item android:title="@string/load_from_url"
-          android:id="@+id/menu_load_from_url"
-          />
-    <item android:id="@+id/menu_send"
-          android:title="@string/send_markdown"
-          />
+    <item
+        android:id="@+id/menu_clear"
+        android:showAsAction="withText"
+        android:title="@string/clear"/>
+    <item
+        android:id="@+id/menu_load"
+        android:title="@string/load"/>
+    <item
+        android:id="@+id/menu_save"
+        android:title="@string/save"/>
+    <item
+        android:id="@+id/menu_export_html"
+        android:title="@string/export_html"/>
+    <item
+        android:id="@+id/menu_send"
+        android:title="@string/share" />
 
 </menu>

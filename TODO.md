@@ -8,5 +8,5 @@
 - Add ability to load other CSS
 - Enable saving and loading of files
 - Enable exporting HTML
-- Get the scrollbar to display for EditText
+- Changeable font size for editor, along with different colour schemes.
 - New icon for app (now that it's becoming more complete)

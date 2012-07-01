@@ -4,9 +4,12 @@
     <string name="save">Save</string>
     <string name="load">Load</string>
     <string name="export_html">Export HTML</string>
-    <string name="load_from_url">Load from URL</string>
-    <string name="send_markdown">Send markdown text</string>
+
+    <string name="share">Share Text</string>
     <string name="subject_markdown">MDEdit: Your markdown text</string>
     <string name="clear">Clear</string>
-    <string name="help_text">Type here, then swipe left to show the result</string>
+    <string name="help_text">Type here, then switch to Viewer to see the results</string>
+
+	<string name="load_from_url">Load from URL</string>
+    <string name="send_markdown">Send markdown text</string>
 </resources>

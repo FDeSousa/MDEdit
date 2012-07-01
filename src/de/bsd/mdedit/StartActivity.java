@@ -1,10 +1,17 @@
 package de.bsd.mdedit;
 
+import group.pals.android.lib.ui.filechooser.FileChooserActivity;
+import group.pals.android.lib.ui.filechooser.io.LocalFile;
+
+import java.io.File;
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,6 +32,8 @@ import com.viewpagerindicator.TitlePageIndicator;
  * 
  */
 public class StartActivity extends Activity {
+	private static final int LOAD_FILE_RESULT_CODE = 27485;
+	private static final int SAVE_FILE_RESULT_CODE = 11484;
 
 	private MDEditPagerAdapter mdpAdapter;
 
@@ -46,7 +55,7 @@ public class StartActivity extends Activity {
 				&& getIntent().getData() != null) {
 			// Called to open a .md file
 			Uri uri = getIntent().getData();
-			initText = fileHandler.loadFromFile(uri.getPath(), true);
+			initText = fileHandler.loadFromFile(uri.getPath());
 		}
 
 		ViewPager vPager = (ViewPager) findViewById(R.id.markdown_pager);
@@ -92,26 +101,34 @@ public class StartActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.menu_save:
 			// TODO Add saving of files
-			// String text_save = mdpAdapter.getText();
+			Intent save = new Intent(this, FileChooserActivity.class)
+					.putExtra(FileChooserActivity._Rootpath,
+							(Parcelable) new LocalFile(FileHandler.SD_FOLDER))
+					.putExtra(FileChooserActivity._SaveDialog, true)
+					.putExtra(FileChooserActivity._DefaultFilename, "text.md")
+					.putExtra(FileChooserActivity._DisplayHiddenFiles, false);
+			startActivityForResult(save, SAVE_FILE_RESULT_CODE);
 			break;
 		case R.id.menu_load:
 			// TODO Add loading of files
+			Intent load = new Intent(this, FileChooserActivity.class)
+					.putExtra(FileChooserActivity._Rootpath,
+							(Parcelable) new LocalFile(FileHandler.SD_FOLDER))
+					.putExtra(FileChooserActivity._DisplayHiddenFiles, false);
+			startActivityForResult(load, SAVE_FILE_RESULT_CODE);
 			break;
 		case R.id.menu_export_html:
 			// TODO Add exporting of HTML
 			// String html = mdpAdapter.getHtml();
 			break;
-		case R.id.menu_load_from_url:
-			// TODO Add loading of files from URL
-			break;
 		case R.id.menu_send:
+			// TODO Check out sending to Pocket
 			String text_send = mdpAdapter.getText();
-			Intent i = new Intent(Intent.ACTION_SEND);
-			i.setType("text/plain");
-			i.putExtra(Intent.EXTRA_TEXT, text_send);
 			String subject = getString(R.string.subject_markdown);
-			i.putExtra(Intent.EXTRA_SUBJECT, subject);
-			startActivity(i);
+			Intent share = new Intent(Intent.ACTION_SEND).setType("text/plain")
+					.putExtra(Intent.EXTRA_TEXT, text_send)
+					.putExtra(Intent.EXTRA_SUBJECT, subject);
+			startActivity(share);
 			break;
 		case R.id.menu_clear:
 			mdpAdapter.setText("");
@@ -120,4 +137,23 @@ public class StartActivity extends Activity {
 		return true;
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == RESULT_OK && data != null) {
+			List<LocalFile> files = (List<LocalFile>) data.getSerializableExtra(FileChooserActivity._Results);
+			switch (requestCode) {
+			case LOAD_FILE_RESULT_CODE:
+				for (File f : files) {
+					String text = fileHandler.loadFromFile(f);
+					mdpAdapter.setText(text);
+				}
+				break;
+			case SAVE_FILE_RESULT_CODE:
+				for (File f : files) {
+					fileHandler.saveToFile(f, mdpAdapter.getText());
+				}
+				break;
+			}
+		}
+	}
 }

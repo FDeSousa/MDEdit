@@ -99,8 +99,7 @@ public class MDEditPagerAdapter extends PagerAdapter {
 
 	public void onResume() {
 		if (TextUtils.isEmpty(txtEditor.getText())) {
-			String text = fileHandler.loadFromFile(FileHandler.TEMP_FILE_NAME,
-					false);
+			String text = fileHandler.loadFromFile(FileHandler.TEMP_FILE_NAME);
 			if (text != null) {
 				txtEditor.setText(text);
 			}

@@ -3,23 +3,25 @@
     package="de.bsd.mdedit"
     android:installLocation="preferExternal"
     android:versionCode="1"
-    android:versionName="0.01" >
+    android:versionName="0.10" >
 
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="15" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
 
     <application android:label="@string/app_name" >
         <activity
             android:name="StartActivity"
             android:label="@string/app_name" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -27,9 +29,17 @@
                 <data android:scheme="file" />
                 <data android:pathPattern=".*\\.md" />
                 <data android:mimeType="application/octet-stream" />
+                <data android:mimeType="text/plain" />
                 <data android:host="*" />
             </intent-filter>
+
         </activity>
+
+        <activity android:name="group.pals.android.lib.ui.filechooser.FileChooserActivity"
+            android:theme="@android:style/Theme.Holo.Dialog"
+            android:configChanges="orientation|keyboardHidden" />
+        
+        <service android:name="group.pals.android.lib.ui.filechooser.services.LocalFileProvider" />
     </application>
 
 </manifest>
