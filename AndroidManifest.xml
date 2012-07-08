@@ -2,43 +2,68 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.bsd.mdedit"
     android:installLocation="preferExternal"
-    android:versionCode="1"
-    android:versionName="0.10" >
+    android:versionCode="2"
+    android:versionName="0.11" >
 
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="15" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true" />
 
     <application android:label="@string/app_name" >
         <activity
             android:name="StartActivity"
             android:label="@string/app_name" >
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+
                 <category android:name="android.intent.category.DEFAULT" />
-                <!-- <category android:name="android.intent.category.BROWSABLE" /> -->
-                <data android:scheme="file" />
-                <data android:pathPattern=".*\\.md" />
-                <data android:mimeType="application/octet-stream" />
+
                 <data android:mimeType="text/plain" />
-                <data android:host="*" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.md"
+                    android:scheme="file" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.markdown"
+                    android:scheme="file" />
+            </intent-filter>
         </activity>
+        <activity
+            android:name="group.pals.android.lib.ui.filechooser.FileChooserActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@android:style/Theme.Holo.Dialog" />
 
-        <activity android:name="group.pals.android.lib.ui.filechooser.FileChooserActivity"
-            android:theme="@android:style/Theme.Holo.Dialog"
-            android:configChanges="orientation|keyboardHidden" />
-        
         <service android:name="group.pals.android.lib.ui.filechooser.services.LocalFileProvider" />
     </application>
 

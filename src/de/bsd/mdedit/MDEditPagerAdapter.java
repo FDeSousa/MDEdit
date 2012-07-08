@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -38,15 +37,10 @@ public class MDEditPagerAdapter extends PagerAdapter {
 	private ViewPager vPager;
 	private TitlePageIndicator tpIndicator;
 
-	private FileHandler fileHandler;
-
-	public MDEditPagerAdapter(Context context, FileHandler fileHandler,
-			LayoutInflater layoutInflater, ViewPager vPager,
-			TitlePageIndicator tpIndicator, String initText) {
+	public MDEditPagerAdapter(Context context, LayoutInflater layoutInflater,
+			ViewPager vPager, TitlePageIndicator tpIndicator, String initText) {
 		super();
 		this.context = context;
-
-		this.fileHandler = fileHandler;
 
 		this.vPager = vPager;
 		this.vPager.setAdapter(this);
@@ -98,15 +92,7 @@ public class MDEditPagerAdapter extends PagerAdapter {
 	}
 
 	public void onResume() {
-		if (TextUtils.isEmpty(txtEditor.getText())) {
-			String text = fileHandler.loadFromFile(FileHandler.TEMP_FILE_NAME);
-			if (text != null) {
-				txtEditor.setText(text);
-			}
-		}
-
-		// Only set the listener now so webview has had a chance to be
-		// instantiated
+		// Only set the listener now so webview has had a chance to be instantiated
 		tpIndicator.setOnPageChangeListener(new SimpleOnPageChangeListener() {
 			@Override
 			public void onPageSelected(int position) {
@@ -121,11 +107,6 @@ public class MDEditPagerAdapter extends PagerAdapter {
 				super.onPageSelected(position);
 			}
 		});
-	}
-
-	public void onPause() {
-		String text = txtEditor.getText();
-		fileHandler.saveToFile(FileHandler.TEMP_FILE_NAME, text);
 	}
 
 	public void onSaveInstanceState(Bundle outState) {
@@ -148,6 +129,10 @@ public class MDEditPagerAdapter extends PagerAdapter {
 
 	public String getText() {
 		return this.txtEditor.getText();
+	}
+	
+	public boolean isTextEmpty() {
+		return this.txtEditor.isEmpty();
 	}
 
 	public String getHtml() {

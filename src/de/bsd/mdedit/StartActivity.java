@@ -34,12 +34,12 @@ import com.viewpagerindicator.TitlePageIndicator;
 public class StartActivity extends Activity {
 	private static final int LOAD_FILE_RESULT_CODE = 27485;
 	private static final int SAVE_FILE_RESULT_CODE = 11484;
+	private static final int HTML_FILE_RESULT_CODE = 15359;
 
 	private MDEditPagerAdapter mdpAdapter;
 
 	private FileHandler fileHandler;
 
-	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -50,31 +50,28 @@ public class StartActivity extends Activity {
 
 		if (savedInstanceState != null) {
 			// Get text from savedInstanceState
-			initText = savedInstanceState.getString("text");
-		} else if (savedInstanceState == null && getIntent() != null
-				&& getIntent().getData() != null) {
-			// Called to open a .md file
-			Uri uri = getIntent().getData();
-			initText = fileHandler.loadFromFile(uri.getPath());
+			if ((initText = savedInstanceState.getString("text")) == null)
+				initText = "";
 		}
 
 		ViewPager vPager = (ViewPager) findViewById(R.id.markdown_pager);
 		TitlePageIndicator tpIndicator = (TitlePageIndicator) findViewById(R.id.titles);
 		LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		mdpAdapter = new MDEditPagerAdapter(this, this.fileHandler,
-				layoutInflater, vPager, tpIndicator, initText);
+		mdpAdapter = new MDEditPagerAdapter(this, layoutInflater, vPager,
+				tpIndicator, initText);
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		this.readIntent();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
+		this.readIntent();
 		mdpAdapter.onResume();
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		mdpAdapter.onPause();
 	}
 
 	@Override
@@ -100,29 +97,34 @@ public class StartActivity extends Activity {
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_save:
-			// TODO Add saving of files
 			Intent save = new Intent(this, FileChooserActivity.class)
 					.putExtra(FileChooserActivity._Rootpath,
 							(Parcelable) new LocalFile(FileHandler.SD_FOLDER))
 					.putExtra(FileChooserActivity._SaveDialog, true)
-					.putExtra(FileChooserActivity._DefaultFilename, "text.md")
+					.putExtra(FileChooserActivity._DefaultFilename,
+							"markdown.md")
 					.putExtra(FileChooserActivity._DisplayHiddenFiles, false);
 			startActivityForResult(save, SAVE_FILE_RESULT_CODE);
 			break;
 		case R.id.menu_load:
-			// TODO Add loading of files
-			Intent load = new Intent(this, FileChooserActivity.class)
-					.putExtra(FileChooserActivity._Rootpath,
-							(Parcelable) new LocalFile(FileHandler.SD_FOLDER))
+			Intent load = new Intent(this, FileChooserActivity.class).putExtra(
+					FileChooserActivity._Rootpath,
+					(Parcelable) new LocalFile(FileHandler.SD_FOLDER))
 					.putExtra(FileChooserActivity._DisplayHiddenFiles, false);
-			startActivityForResult(load, SAVE_FILE_RESULT_CODE);
+			startActivityForResult(load, LOAD_FILE_RESULT_CODE);
 			break;
 		case R.id.menu_export_html:
-			// TODO Add exporting of HTML
-			// String html = mdpAdapter.getHtml();
+			Intent export = new Intent(this, FileChooserActivity.class)
+					.putExtra(FileChooserActivity._Rootpath,
+							(Parcelable) new LocalFile(FileHandler.SD_FOLDER))
+					.putExtra(FileChooserActivity._SaveDialog, true)
+					.putExtra(FileChooserActivity._DefaultFilename,
+							"markup.html")
+					.putExtra(FileChooserActivity._DisplayHiddenFiles, false);
+			startActivityForResult(export, HTML_FILE_RESULT_CODE);
 			break;
 		case R.id.menu_send:
-			// TODO Check out sending to Pocket
+			// TODO Check out sending to Pocket - fails stating data unreadable
 			String text_send = mdpAdapter.getText();
 			String subject = getString(R.string.subject_markdown);
 			Intent share = new Intent(Intent.ACTION_SEND).setType("text/plain")
@@ -140,7 +142,9 @@ public class StartActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == RESULT_OK && data != null) {
-			List<LocalFile> files = (List<LocalFile>) data.getSerializableExtra(FileChooserActivity._Results);
+			@SuppressWarnings("unchecked")
+			List<LocalFile> files = (List<LocalFile>) data
+					.getSerializableExtra(FileChooserActivity._Results);
 			switch (requestCode) {
 			case LOAD_FILE_RESULT_CODE:
 				for (File f : files) {
@@ -149,11 +153,34 @@ public class StartActivity extends Activity {
 				}
 				break;
 			case SAVE_FILE_RESULT_CODE:
-				for (File f : files) {
+				for (File f : files)
 					fileHandler.saveToFile(f, mdpAdapter.getText());
-				}
+				break;
+			case HTML_FILE_RESULT_CODE:
+				for (File f : files)
+					fileHandler.saveToFile(f, mdpAdapter.getHtml());
 				break;
 			}
 		}
+	}
+
+	private void readIntent() {
+		final Intent intent = getIntent();
+		String text = "";
+
+		if (intent != null) {
+			final Uri data = intent.getData();
+			final String extra = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+			if (data != null) {
+				final String path = data.getEncodedPath();
+				text = this.fileHandler.loadFromFile(path);
+			} else if (extra != null) {
+				text = extra;
+			}
+		}
+		
+		if (mdpAdapter.isTextEmpty())
+			mdpAdapter.setText(text);
 	}
 }

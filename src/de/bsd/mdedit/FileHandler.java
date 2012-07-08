@@ -22,13 +22,7 @@ import android.widget.Toast;
  * 
  */
 public class FileHandler {
-	public static final File SD_FOLDER;
-	public static final String TEMP_FILE_NAME;
-
-	static {
-		TEMP_FILE_NAME = "_tmp-save.md";
-		SD_FOLDER = new File(Environment.getExternalStorageDirectory(), "/MDEdit");
-	}
+	public static final File SD_FOLDER = new File(Environment.getExternalStorageDirectory(), "/MDEdit");
 
 	private final Context context;
 
@@ -67,10 +61,8 @@ public class FileHandler {
 			fis.close();
 			return text;
 		} catch (IOException e) {
-			// TODO Fix hacky way of not showing toast for failed loading of temp file
-			if (!file.getName().equals(TEMP_FILE_NAME))
-				Toast.makeText(this.context, "Load failed: " + e.getMessage(),
-						Toast.LENGTH_LONG).show();
+			Toast.makeText(this.context, "Load failed: " + e.getMessage(),
+					Toast.LENGTH_LONG).show();
 			Log.e("FileHandler.loadFromFile", "Load failed.", e);
 		}
 		return null;

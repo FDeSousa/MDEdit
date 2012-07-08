@@ -9,7 +9,4 @@
     <string name="subject_markdown">MDEdit: Your markdown text</string>
     <string name="clear">Clear</string>
     <string name="help_text">Type here, then switch to Viewer to see the results</string>
-
-	<string name="load_from_url">Load from URL</string>
-    <string name="send_markdown">Send markdown text</string>
 </resources>

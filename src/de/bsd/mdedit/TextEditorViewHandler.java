@@ -77,6 +77,10 @@ public class TextEditorViewHandler {
 		this.mdView.update(string);
 	}
 	
+	public boolean isEmpty() {
+		return this.editText.getText().length() == 0 ? true : false;
+	}
+	
 	/**
 	 * Gets the current selection start and end integers for the edit text.
 	 * @return int[] containing start and end selection values

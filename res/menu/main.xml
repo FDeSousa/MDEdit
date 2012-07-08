@@ -10,12 +10,16 @@
         android:title="@string/load"/>
     <item
         android:id="@+id/menu_save"
+        android:icon="@android:drawable/ic_menu_save"
+        android:showAsAction="ifRoom"
         android:title="@string/save"/>
     <item
         android:id="@+id/menu_export_html"
         android:title="@string/export_html"/>
     <item
         android:id="@+id/menu_send"
+        android:icon="@android:drawable/ic_menu_share"
+        android:showAsAction="ifRoom"
         android:title="@string/share" />
 
 </menu>
