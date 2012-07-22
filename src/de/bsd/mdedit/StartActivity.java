@@ -6,19 +6,16 @@ import group.pals.android.lib.ui.filechooser.io.LocalFile;
 import java.io.File;
 import java.util.List;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
+import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
-import com.viewpagerindicator.TitlePageIndicator;
 
 /**
  * 
@@ -31,12 +28,13 @@ import com.viewpagerindicator.TitlePageIndicator;
  * @version %I%, %G%
  * 
  */
-public class StartActivity extends Activity {
+public class StartActivity extends FragmentActivity {
 	private static final int LOAD_FILE_RESULT_CODE = 27485;
 	private static final int SAVE_FILE_RESULT_CODE = 11484;
 	private static final int HTML_FILE_RESULT_CODE = 15359;
 
 	private MDEditPagerAdapter mdpAdapter;
+	private ViewPager mViewPager;
 
 	private FileHandler fileHandler;
 
@@ -54,24 +52,22 @@ public class StartActivity extends Activity {
 				initText = "";
 		}
 
-		ViewPager vPager = (ViewPager) findViewById(R.id.markdown_pager);
-		TitlePageIndicator tpIndicator = (TitlePageIndicator) findViewById(R.id.titles);
-		LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		mdpAdapter = new MDEditPagerAdapter(this, layoutInflater, vPager,
-				tpIndicator, initText);
-	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-		this.readIntent();
+		mdpAdapter = new MDEditPagerAdapter(getSupportFragmentManager(), initText);
+		mViewPager = (ViewPager) findViewById(R.id.markdown_pager);
+		mViewPager.setAdapter(mdpAdapter);
+		mViewPager.setOnPageChangeListener(new SimpleOnPageChangeListener() {
+			@Override
+			public void onPageSelected(int position) {
+				mdpAdapter.onPageSelected(position);
+			}
+		});
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		this.readIntent();
 		mdpAdapter.onResume();
+		this.readIntent();
 	}
 
 	@Override
@@ -179,7 +175,7 @@ public class StartActivity extends Activity {
 				text = extra;
 			}
 		}
-		
+
 		if (mdpAdapter.isTextEmpty())
 			mdpAdapter.setText(text);
 	}
