@@ -33,16 +33,16 @@ public class TextEditorFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		this.imm = ((InputMethodManager) getActivity().getSystemService(
-				Context.INPUT_METHOD_SERVICE));
+		imm = (InputMethodManager) getActivity().getSystemService(
+				Context.INPUT_METHOD_SERVICE);
 
 		View view = inflater.inflate(R.layout.editor_view, container, false);
-		this.editor = (EditText) view.findViewById(R.id.editor);
+		editor = (EditText) view.findViewById(R.id.editor);
 
 		if (savedInstanceState != null) {
 			String initText = savedInstanceState.getString("title");
 			if (initText != null)
-				this.editor.setText(initText);
+				editor.setText(initText);
 
 			int[] selection = savedInstanceState
 					.getIntArray(TextEditorFragment.TEXT_SELECTION);
@@ -54,11 +54,11 @@ public class TextEditorFragment extends Fragment {
 	}
 
 	public String getText() {
-		return this.editor == null ? null : this.editor.getText().toString();
+		return editor == null ? null : editor.getText().toString();
 	}
 
 	public void setText(String text) {
-		this.editor.setText(text);
+		editor.setText(text);
 	}
 
 	public boolean isEmpty() {
@@ -66,24 +66,24 @@ public class TextEditorFragment extends Fragment {
 	}
 
 	public void gainFocus() {
-		this.editor.requestFocus();
-		this.imm.showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT);
+		editor.requestFocus();
+		imm.showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT);
 	}
 
 	public void loseFocus() {
-		this.imm.hideSoftInputFromWindow(editor.getWindowToken(),
+		imm.hideSoftInputFromWindow(editor.getWindowToken(),
 				InputMethodManager.HIDE_NOT_ALWAYS);
-		this.editor.clearFocus();
+		editor.clearFocus();
 	}
 
 	public int[] getSelection() {
-		int[] selection = { this.editor.getSelectionStart(),
-				this.editor.getSelectionEnd() };
+		int[] selection = { editor.getSelectionStart(),
+				editor.getSelectionEnd() };
 		return selection;
 	}
 
 	public void setSelection(int[] selection) {
-		this.editor.setSelection(selection[0], selection[1]);
+		editor.setSelection(selection[0], selection[1]);
 	}
 
 }

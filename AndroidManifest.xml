@@ -6,10 +6,12 @@
     android:versionName="0.11" >
 
     <uses-sdk
-        android:minSdkVersion="9"
-        android:targetSdkVersion="15" />
+        android:minSdkVersion="14"
+        android:targetSdkVersion="17" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <supports-screens
         android:anyDensity="true"
@@ -25,23 +27,18 @@
             android:screenOrientation="sensorLandscape" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="text/plain" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data
                     android:host="*"
                     android:mimeType="*/*"
@@ -51,9 +48,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data
                     android:host="*"
                     android:mimeType="*/*"
@@ -65,8 +60,24 @@
             android:name="group.pals.android.lib.ui.filechooser.FileChooserActivity"
             android:configChanges="orientation|keyboardHidden"
             android:theme="@android:style/Theme.Holo.Dialog" />
-
-        <service android:name="group.pals.android.lib.ui.filechooser.services.LocalFileProvider" />
+        <!-- Dropbox activities and services -->
+        <activity android:name="com.dropbox.sync.android.DbxAuthActivity" />
+		<activity
+		  android:name="com.dropbox.client2.android.AuthActivity"
+		  android:launchMode="singleTask" >
+		  <intent-filter>
+		    <data android:scheme="db-j0tyj8bgnha92sb" />
+		    <action android:name="android.intent.action.VIEW" />
+		    <category android:name="android.intent.category.BROWSABLE" />
+		    <category android:name="android.intent.category.DEFAULT" />
+		  </intent-filter>
+		</activity>
+		<service
+		  android:name="com.dropbox.sync.android.DbxSyncService"
+		  android:enabled="true"
+		  android:exported="false"
+		  android:label="Dropbox Sync" />
+        <!-- <service android:name="group.pals.android.lib.ui.filechooser.services.LocalFileProvider" /> -->
     </application>
 
 </manifest>

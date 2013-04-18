@@ -7,16 +7,18 @@
 
     <EditText
         android:id="@+id/editor"
-        android:inputType="text|textCapSentences|textAutoCorrect|textAutoComplete|textMultiLine"
+        android:inputType="text|textCapSentences|textAutoCorrect|textAutoComplete|textMultiLine|textLongMessage"
         android:hint="@string/help_text"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:padding="1dip"
+        android:padding="5dp"
+        android:includeFontPadding="true"
+        android:layout_margin="0dp"
         android:scrollHorizontally="false"
         android:scrollbars="vertical"
         android:scrollbarStyle="insideOverlay"
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:overScrollMode="ifContentScrolls"
-        style="@style/solarized"/>
+        style="@style/solarized" />
 
 </LinearLayout>

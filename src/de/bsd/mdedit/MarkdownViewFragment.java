@@ -40,8 +40,8 @@ public class MarkdownViewFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.markdown_view, container, false);
-		this.webView = (WebView) view.findViewById(R.id.md_view);
-		this.markdown = new Markdown();
+		webView = (WebView) view.findViewById(R.id.md_view);
+		markdown = new Markdown();
 		return view;
 	}
 
@@ -52,11 +52,13 @@ public class MarkdownViewFragment extends Fragment {
 	public void update(String text) {
 		String markup = transform(text);
 		// Load the HTML with chosen CSS into WebView
-		String result = CSS_STRING + markup;
-		String baseUrl = CSS_BASE_URL;
-		if (this.cssBaseUrl != null)
-			baseUrl = this.cssBaseUrl;
-		webView.loadDataWithBaseURL(baseUrl, result, MIME_TYPE, ENCODING, null);
+		String result = MarkdownViewFragment.CSS_STRING + markup;
+		String baseUrl = MarkdownViewFragment.CSS_BASE_URL;
+		if (cssBaseUrl != null)
+			baseUrl = cssBaseUrl;
+		webView.loadDataWithBaseURL(baseUrl, result,
+				MarkdownViewFragment.MIME_TYPE, MarkdownViewFragment.ENCODING,
+				null);
 	}
 
 	private String transform(String text) {

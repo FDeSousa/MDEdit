@@ -9,4 +9,8 @@
     <string name="subject_markdown">MDEdit: Your markdown text</string>
     <string name="clear">Clear</string>
     <string name="help_text">Type here, then switch to Viewer to see the results</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="input_filename_dialog_title">New file name</string>
+    <string name="input_filename_dialog_message">Please enter new file name</string>
 </resources>

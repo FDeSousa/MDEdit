@@ -1,21 +1,20 @@
 package de.bsd.mdedit;
 
-import group.pals.android.lib.ui.filechooser.FileChooserActivity;
-import group.pals.android.lib.ui.filechooser.io.LocalFile;
-
-import java.io.File;
-import java.util.List;
-
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.dropbox.sync.android.DbxAccountManager;
+import com.dropbox.sync.android.DbxException.Unauthorized;
+import com.dropbox.sync.android.DbxFileSystem;
 
 /**
  * 
@@ -32,27 +31,32 @@ public class StartActivity extends FragmentActivity {
 	private static final int LOAD_FILE_RESULT_CODE = 27485;
 	private static final int SAVE_FILE_RESULT_CODE = 11484;
 	private static final int HTML_FILE_RESULT_CODE = 15359;
+	private static final int REQUEST_LINK_TO_DBX = 0xDB6;
 
 	private MDEditPagerAdapter mdpAdapter;
 	private ViewPager mViewPager;
-
 	private FileHandler fileHandler;
+	private DbxAccountManager mDbxAcctMgr;
+	private DbxFileSystem mDbxFileSys;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		this.fileHandler = new FileHandler(this);
+		mDbxAcctMgr = DbxAccountManager.getInstance(getApplicationContext(),
+				"APP-KEY", "APP-SECRET"); // App key, app secret
+
+		fileHandler = new FileHandler(this);
 		String initText = "";
 
-		if (savedInstanceState != null) {
+		if (savedInstanceState != null)
 			// Get text from savedInstanceState
 			if ((initText = savedInstanceState.getString("text")) == null)
 				initText = "";
-		}
 
-		mdpAdapter = new MDEditPagerAdapter(getSupportFragmentManager(), initText);
+		mdpAdapter = new MDEditPagerAdapter(getSupportFragmentManager(),
+				initText);
 		mViewPager = (ViewPager) findViewById(R.id.markdown_pager);
 		mViewPager.setAdapter(mdpAdapter);
 		mViewPager.setOnPageChangeListener(new SimpleOnPageChangeListener() {
@@ -67,7 +71,7 @@ public class StartActivity extends FragmentActivity {
 	public void onResume() {
 		super.onResume();
 		mdpAdapter.onResume();
-		this.readIntent();
+		readIntent();
 	}
 
 	@Override
@@ -89,35 +93,44 @@ public class StartActivity extends FragmentActivity {
 		return true;
 	}
 
+	private void linkToDropbox() {
+		if (!mDbxAcctMgr.hasLinkedAccount())
+			mDbxAcctMgr.startLink(this, StartActivity.REQUEST_LINK_TO_DBX);
+	}
+
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_save:
-			Intent save = new Intent(this, FileChooserActivity.class)
-					.putExtra(FileChooserActivity._Rootpath,
-							(Parcelable) new LocalFile(FileHandler.SD_FOLDER))
-					.putExtra(FileChooserActivity._SaveDialog, true)
-					.putExtra(FileChooserActivity._DefaultFilename,
-							"markdown.md")
-					.putExtra(FileChooserActivity._DisplayHiddenFiles, false);
-			startActivityForResult(save, SAVE_FILE_RESULT_CODE);
+			// Intent save = new Intent(this, FileChooserActivity.class)
+			// .putExtra(FileChooserActivity._Rootpath,
+			// (Parcelable) new LocalFile(FileHandler.SD_FOLDER))
+			// .putExtra(FileChooserActivity._SaveDialog, true)
+			// .putExtra(FileChooserActivity._DefaultFilename,
+			// "markdown.md")
+			// .putExtra(FileChooserActivity._DisplayHiddenFiles, false);
+			// startActivityForResult(save, SAVE_FILE_RESULT_CODE);
+			linkToDropbox();
+			fileHandler.doSomething();
 			break;
 		case R.id.menu_load:
-			Intent load = new Intent(this, FileChooserActivity.class).putExtra(
-					FileChooserActivity._Rootpath,
-					(Parcelable) new LocalFile(FileHandler.SD_FOLDER))
-					.putExtra(FileChooserActivity._DisplayHiddenFiles, false);
-			startActivityForResult(load, LOAD_FILE_RESULT_CODE);
+			// Intent load = new Intent(this,
+			// FileChooserActivity.class).putExtra(
+			// FileChooserActivity._Rootpath,
+			// (Parcelable) new LocalFile(FileHandler.SD_FOLDER))
+			// .putExtra(FileChooserActivity._DisplayHiddenFiles, false);
+			// startActivityForResult(load, LOAD_FILE_RESULT_CODE);
+			linkToDropbox();
 			break;
 		case R.id.menu_export_html:
-			Intent export = new Intent(this, FileChooserActivity.class)
-					.putExtra(FileChooserActivity._Rootpath,
-							(Parcelable) new LocalFile(FileHandler.SD_FOLDER))
-					.putExtra(FileChooserActivity._SaveDialog, true)
-					.putExtra(FileChooserActivity._DefaultFilename,
-							"markup.html")
-					.putExtra(FileChooserActivity._DisplayHiddenFiles, false);
-			startActivityForResult(export, HTML_FILE_RESULT_CODE);
+			// Intent export = new Intent(this, FileChooserActivity.class)
+			// .putExtra(FileChooserActivity._Rootpath,
+			// (Parcelable) new LocalFile(FileHandler.SD_FOLDER))
+			// .putExtra(FileChooserActivity._SaveDialog, true)
+			// .putExtra(FileChooserActivity._DefaultFilename,
+			// "markup.html")
+			// .putExtra(FileChooserActivity._DisplayHiddenFiles, false);
+			// startActivityForResult(export, HTML_FILE_RESULT_CODE);
 			break;
 		case R.id.menu_send:
 			// TODO Check out sending to Pocket - fails stating data unreadable
@@ -137,27 +150,29 @@ public class StartActivity extends FragmentActivity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode == RESULT_OK && data != null) {
-			@SuppressWarnings("unchecked")
-			List<LocalFile> files = (List<LocalFile>) data
-					.getSerializableExtra(FileChooserActivity._Results);
-			switch (requestCode) {
-			case LOAD_FILE_RESULT_CODE:
-				for (File f : files) {
-					String text = fileHandler.loadFromFile(f);
-					mdpAdapter.setText(text);
-				}
-				break;
-			case SAVE_FILE_RESULT_CODE:
-				for (File f : files)
-					fileHandler.saveToFile(f, mdpAdapter.getText());
-				break;
-			case HTML_FILE_RESULT_CODE:
-				for (File f : files)
-					fileHandler.saveToFile(f, mdpAdapter.getHtml());
-				break;
-			}
-		}
+		if (requestCode == StartActivity.REQUEST_LINK_TO_DBX) {
+			if (resultCode == Activity.RESULT_OK) {
+				// User linked to Dropbox successfully...
+				// Just confirm it's really linked
+				if (mDbxAcctMgr.hasLinkedAccount())
+					try {
+						mDbxFileSys = DbxFileSystem.forAccount(mDbxAcctMgr
+								.getLinkedAccount());
+					} catch (Unauthorized u) {
+						// User has de-authorised the app, or has failed to
+						// login
+						linkToDropbox();
+					}
+				else
+					linkToDropbox();
+			} else
+				// User cancelled or operation failed...
+				Toast.makeText(
+						this,
+						"Could not continue operation. Dropbox account not linked.",
+						Toast.LENGTH_SHORT).show();
+		} else
+			super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	private void readIntent() {
@@ -170,10 +185,9 @@ public class StartActivity extends FragmentActivity {
 
 			if (data != null) {
 				final String path = data.getEncodedPath();
-				text = this.fileHandler.loadFromFile(path);
-			} else if (extra != null) {
+				text = fileHandler.loadFromFile(path);
+			} else if (extra != null)
 				text = extra;
-			}
 		}
 
 		if (mdpAdapter.isTextEmpty())
